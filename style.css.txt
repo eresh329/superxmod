@@ -1,0 +1,29 @@
+:root {
+    --primary: #ff6600; --secondary: #222; --danger: #ff4444;
+    --success: #44ff44; --info: #00ccff; --light: #f4f4f4; --dark: #111;
+}
+
+body { margin:0; font-family:'Segoe UI',sans-serif; background:var(--dark); color:var(--light);}
+header { background:var(--secondary); padding:10px 20px; display:flex; justify-content:space-between; align-items:center;}
+header h1 { display:flex; align-items:center; gap:10px; color:var(--primary); margin:0;}
+header img { height:40px; width:40px; border-radius:50%; }
+
+.stats { display:flex; gap:20px; padding:10px 20px; }
+.stats div { background:var(--secondary); padding:10px; border-radius:8px; flex:1; text-align:center; }
+
+.services { padding:20px; }
+.service { background:var(--secondary); padding:15px; border-radius:8px; margin-bottom:15px; }
+
+.region-btn { background:var(--dark); padding:5px 10px; border-radius:5px; cursor:pointer; margin-right:5px; }
+.region-btn.active { background:var(--primary); }
+
+input[type="text"], input[type="password"] { padding:5px; border-radius:5px; border:1px solid var(--primary); background:var(--dark); color:var(--light);}
+button { cursor:pointer; padding:5px 10px; border:none; border-radius:5px; background:var(--primary); color:var(--light); margin-top:5px;}
+
+#replyBox{margin-top:10px; padding:10px; border-radius:8px; display:none;}
+#replyBox.bd{background:var(--success); color:black;}
+#replyBox.other{background:black; color:white;}
+
+#adminPanel, #likeRequestsPanel{ background:#1e1e1e; padding:15px; border-radius:8px; margin:20px; }
+.user-card{ background:#2a2a2a; padding:10px; margin:10px 0; border-radius:5px;}
+.auth-box{ max-width:300px; margin:30px auto; padding:20px; background:#2a2a2a; border-radius:8px; }

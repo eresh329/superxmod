@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUPER X MOD</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h1><img src="https://i.postimg.cc/Wb8nN156/6208773400357357048.jpg"> SUPER X MOD</h1>
+    <span>🔥</span>
+</header>
+
+<div id="authContainer" class="auth-box">
+    <h2>Login / Register</h2>
+    <input type="text" id="authUsername" placeholder="Username"><br>
+    <input type="password" id="authPassword" placeholder="Password"><br>
+    <button onclick="loginUser()">Login</button>
+    <button onclick="registerUser()">Register</button>
+</div>
+
+<div id="mainContainer" style="display:none;">
+    <div class="stats">
+        <div>Super Coins: <span id="coinBalance">0</span></div>
+        <div>Status: <span id="userStatus">Free</span></div>
+        <div>Daily Limit: <span id="likeLimit">0</span></div>
+    </div>
+
+    <div class="services">
+        <div class="service">
+            <h3>Like Service</h3>
+            <div class="regions" id="likeRegions">
+                <span class="region-btn active" data-region="BD">BD</span>
+                <span class="region-btn" data-region="IND">IND</span>
+                <span class="region-btn" data-region="PK">PK</span>
+                <span class="region-btn" data-region="THA">THA</span>
+                <span class="region-btn" data-region="VNM">VNM</span>
+                <span class="region-btn" data-region="MEX">MEX</span>
+                <span class="region-btn" data-region="TWN">TWN</span>
+                <span class="region-btn" data-region="MDE">MDE</span>
+                <span class="region-btn" data-region="EUR">EUR</span>
+                <span class="region-btn" data-region="SGP">SGP</span>
+            </div>
+            <input type="text" id="likeUid" placeholder="Free Fire UID">
+            <button onclick="sendLike()">Send Like</button>
+            <div id="replyBox"></div>
+        </div>
+    </div>
+
+    <div id="likeRequestsPanel">
+        <h2>Like Request List</h2>
+        <div id="likeRequestsContainer"></div>
+    </div>
+
+    <div id="adminPanel">
+        <h2>Admin Panel</h2>
+        <div id="usersList"></div>
+        <div id="deleteReqBox" style="margin-top:10px;"></div>
+    </div>
+
+    <button onclick="logoutUser()">Logout</button>
+</div>
+
+<footer style="padding:5px 20px; text-align:center;">
+    <div>Telegram: <a href="https://t.me/superxtoolsv2" target="_blank">https://t.me/superxtoolsv2</a></div>
+    © 2025 SUPER X MOD | Developed by ERESH DEVx
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

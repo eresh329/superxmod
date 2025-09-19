@@ -1,0 +1,187 @@
+const lsUsersKey="app_usersDB", lsSessionKey="app_currentUser", lsLikeRequestsKey="app_likeRequests";
+let users= JSON.parse(localStorage.getItem(lsUsersKey)) || [{username:"admin", password:"admin", role:"Admin", coins:100, vip:true, banned:false}];
+let likeRequests= JSON.parse(localStorage.getItem(lsLikeRequestsKey)) || [];
+let currentUser= JSON.parse(localStorage.getItem(lsSessionKey)) || null;
+
+function registerUser(){
+    const u=document.getElementById('authUsername').value.trim();
+    const p=document.getElementById('authPassword').value.trim();
+    if(!u||!p) return alert("Enter username & password");
+    if(users.find(x=>x.username===u)) return alert("Username exists!");
+    users.push({username:u, password:p, role:"Member", coins:2, vip:false, banned:false, dailyLikes:0});
+    localStorage.setItem(lsUsersKey, JSON.stringify(users));
+    alert("Registered! Now login.");
+}
+
+function loginUser(){
+    const u=document.getElementById('authUsername').value.trim();
+    const p=document.getElementById('authPassword').value.trim();
+    const user=users.find(x=>x.username===u && x.password===p);
+    if(!user) return alert("Invalid credentials!");
+    currentUser=user;
+    localStorage.setItem(lsSessionKey, JSON.stringify(user));
+    document.getElementById('authContainer').style.display="none";
+    document.getElementById('mainContainer').style.display="block";
+    updateStats(); renderUsers(); renderLikeRequests(); renderAdminPanel(); renderDeleteReqButton();
+}
+
+function logoutUser(){
+    localStorage.removeItem(lsSessionKey);
+    currentUser=null;
+    document.getElementById('mainContainer').style.display="none";
+    document.getElementById('authContainer').style.display="block";
+}
+
+function updateStats(){
+    if(!currentUser) return;
+    document.getElementById('coinBalance').textContent=currentUser.coins||0;
+    let statusText="Free";
+    if(currentUser.role==="Admin") statusText="Owner";
+    else if(currentUser.role==="Moderator") statusText="Moderator";
+    else if(currentUser.vip) statusText="VIP";
+    document.getElementById('userStatus').textContent=statusText;
+    const limit = (currentUser.role==="Admin" || currentUser.role==="Moderator") ? 100000 : 100;
+    document.getElementById('likeLimit').textContent = limit - (currentUser.dailyLikes||0);
+}
+
+document.querySelectorAll('.region-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+        document.querySelectorAll('.region-btn').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+    });
+});
+
+function sendLike(){
+    if(!currentUser) return alert("Login required!");
+    const uid=document.getElementById('likeUid').value.trim();
+    if(!uid) return alert("Enter UID!");
+    if(currentUser.coins<=0) return alert("You don't have Super Coins! Buy Super Coins Telegram:@eresh_devx");
+    const region=document.querySelector('.region-btn.active').dataset.region;
+    const replyBox=document.getElementById('replyBox');
+
+    if(!likeRequests.some(r=>r.uid===uid)){
+        likeRequests.push({uid:uid, submittedBy:currentUser.username, server:region});
+        localStorage.setItem(lsLikeRequestsKey, JSON.stringify(likeRequests));
+        renderLikeRequests();
+    }
+
+    if(region==="BD"){
+        replyBox.className="bd";
+        replyBox.innerHTML=`✅ Like Request Accepted!<br>👤 Like Has Sended Any Time<br>🆔 ${uid}<br>👍 Likes Given 100<br>➕ Done Any Time<br>❤️ Don't Give The Same Uid.`;
+    } else {
+        replyBox.className="other";
+        replyBox.innerHTML='Coming Soon...';
+    }
+    replyBox.style.display="block";
+
+    currentUser.dailyLikes=(currentUser.dailyLikes||0)+1;
+    currentUser.coins-=1;
+    const idx=users.findIndex(u=>u.username===currentUser.username);
+    users[idx]=currentUser;
+    localStorage.setItem(lsUsersKey, JSON.stringify(users));
+    localStorage.setItem(lsSessionKey, JSON.stringify(currentUser));
+    updateStats();
+}
+
+function renderUsers(){
+    if(!currentUser || (currentUser.role!=="Admin" && currentUser.role!=="Moderator")) return;
+    const container=document.getElementById('usersList');
+    container.innerHTML='';
+    users.forEach(u=>{
+        const div=document.createElement('div');
+        div.className='user-card';
+        div.innerHTML=`
+<b>${u.username}</b> | Role:${u.role} | Coins:${u.coins} | VIP:${u.vip?"✅":"❌"} | Banned:${u.banned?"🚫":"✅"}<br>
+<button onclick="makeVIP('${u.username}')">Make VIP</button>
+<button onclick="removeVIP('${u.username}')">Remove VIP</button>
+<button onclick="addCoin('${u.username}')">+Super Coin</button>
+<button onclick="removeCoin('${u.username}')">-Super Coin</button>
+<button onclick="banUser('${u.username}')">Ban</button>
+<button onclick="unbanUser('${u.username}')">Unban</button>
+<button onclick="makeAdmin('${u.username}')">Make Admin</button>
+<button onclick="makeMember('${u.username}')">Make Member</button>
+<button onclick="makeModerator('${u.username}')">Make Moderator</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// Admin functions
+function findUser(username){return users.find(u=>u.username===username);}
+function saveUsers(){localStorage.setItem(lsUsersKey, JSON.stringify(users)); renderUsers(); updateStats();}
+function makeVIP(u){let user=findUser(u); if(user){user.vip=true; saveUsers();}}
+function removeVIP(u){let user=findUser(u); if(user){user.vip=false; saveUsers();}}
+function addCoin(u){let user=findUser(u); if(user){user.coins=(user.coins||0)+1; saveUsers(); if(user.username===currentUser.username) updateStats();}}
+function removeCoin(u){let user=findUser(u); if(user){user.coins=(user.coins||0)-1; if(user.coins<0) user.coins=0; saveUsers(); if(user.username===currentUser.username) updateStats();}}
+function banUser(u){let user=findUser(u); if(user){user.banned=true; saveUsers();}}
+function unbanUser(u){let user=findUser(u); if(user){user.banned=false; saveUsers();}}
+function makeAdmin(u){let user=findUser(u); if(user){user.role="Admin"; saveUsers();}}
+function makeMember(u){let user=findUser(u); if(user){user.role="Member"; saveUsers();}}
+function makeModerator(u){let user=findUser(u); if(user){user.role="Moderator"; saveUsers();}
+
+function renderLikeRequests(){
+    const container=document.getElementById('likeRequestsContainer');
+    container.innerHTML='';
+    if(!currentUser || (currentUser.role!=="Admin" && currentUser.role!=="Moderator")) return;
+    likeRequests.forEach(r=>{
+        const div=document.createElement('div');
+        div.className='user-card';
+        div.innerHTML=`UID: <b>${r.uid}</b> | By: ${r.submittedBy} | Server: ${r.server}`;
+        container.appendChild(div);
+    });
+}
+
+function renderAdminPanel(){
+    const panel=document.getElementById('adminPanel');
+    if(!currentUser || (currentUser.role!=="Admin" && currentUser.role!=="Moderator")){
+        panel.style.display="none";
+    } else {
+        panel.style.display="block";
+    }
+}
+
+function renderDeleteReqButton(){
+    const box=document.getElementById('deleteReqBox');
+    box.innerHTML="";
+    if(currentUser && (currentUser.role==="Admin" || currentUser.role==="Owner")){
+        const btn=document.createElement('button');
+        btn.textContent="Delete Req";
+        btn.onclick=()=>{
+            likeRequests=[];
+            localStorage.setItem(lsLikeRequestsKey, JSON.stringify(likeRequests));
+            renderLikeRequests();
+            alert("All Like Requests Deleted!");
+        };
+        box.appendChild(btn);
+    }
+}
+
+function scheduleDailyReset(){
+    const now=new Date();
+    const midnight=new Date(); midnight.setHours(24,0,0,0);
+    setTimeout(()=>{
+        likeRequests=[]; 
+        localStorage.setItem(lsLikeRequestsKey, JSON.stringify(likeRequests));
+        renderLikeRequests();
+        users.forEach(u=>{
+            if(u.role==="Admin"||u.role==="Moderator") u.coins=100;
+            else u.coins=2;
+        });
+        localStorage.setItem(lsUsersKey, JSON.stringify(users));
+        if(currentUser) updateStats();
+        scheduleDailyReset();
+    }, midnight-now);
+}
+scheduleDailyReset();
+
+window.onload=()=>{
+    if(currentUser){
+        document.getElementById('authContainer').style.display="none";
+        document.getElementById('mainContainer').style.display="block";
+        updateStats();
+        renderAdminPanel();
+        renderDeleteReqButton();
+    }
+    renderUsers();
+    renderLikeRequests();
+};
